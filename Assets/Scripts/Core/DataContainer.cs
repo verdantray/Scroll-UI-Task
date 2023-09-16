@@ -1,12 +1,12 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace Core
 {
     public enum DataType { Text, Image }
     
+    /// <summary>
+    /// A Struct contains Information for Scroll-UI-Element
+    /// </summary>
     [Serializable]
     public struct DataContainer
     {

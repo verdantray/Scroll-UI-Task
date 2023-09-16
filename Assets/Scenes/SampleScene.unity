@@ -159,7 +159,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -37, y: -50}
+  m_AnchoredPosition: {x: -40, y: -50}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &57165959
@@ -221,7 +221,7 @@ GameObject:
   - component: {fileID: 442206673}
   - component: {fileID: 442206672}
   m_Layer: 0
-  m_Name: ScrollModel
+  m_Name: DataProvider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -245,7 +245,6 @@ MonoBehaviour:
     m_SubObjectType: 
     m_EditorAssetChanged: 0
   shuffleToggle: {fileID: 57165959}
-  showButton: {fileID: 2019773831}
 --- !u!4 &442206673
 Transform:
   m_ObjectHideFlags: 0
@@ -900,7 +899,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Show
+  m_text: Show & Refresh
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1014,8 +1013,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -42.000122, y: -106.00003}
-  m_SizeDelta: {x: 160, y: 50}
+  m_AnchoredPosition: {x: -40, y: -106.00003}
+  m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &2019773831
 MonoBehaviour:
@@ -1063,7 +1062,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 442206672}
         m_TargetAssemblyTypeName: ScrollModel, Assembly-CSharp
-        m_MethodName: Show
+        m_MethodName: LogMessage
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
