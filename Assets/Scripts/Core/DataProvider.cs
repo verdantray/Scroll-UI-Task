@@ -20,8 +20,6 @@ namespace Core
         {
             _containers.Clear();
             _containers.AddRange(JsonConvert.DeserializeObject<List<DataContainer>>(dataSheet.text));
-
-            LogMessage();
         }
 
         public List<DataContainer> Provide()
