@@ -11,6 +11,6 @@ public class Test : MonoBehaviour
     
     public void ShowScroll()
     {
-        scrollViewer.DisplayScroll(dataProvider.Provide());
+        scrollViewer.FetchData(dataProvider.Provide());
     }
 }

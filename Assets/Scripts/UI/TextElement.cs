@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace UI
 {
-    public class TextItem : ScrollItem<DataContainer>
+    public class TextElement : ScrollElement<DataContainer>
     {
         [SerializeField] private TextMeshProUGUI contentText;
         
-        public override void SetData(DataContainer data)
+        protected override void ShowOnUI(DataContainer data)
         {
             bool isValid = data.type == DataType.Text
                            && !string.IsNullOrEmpty(data.content);
