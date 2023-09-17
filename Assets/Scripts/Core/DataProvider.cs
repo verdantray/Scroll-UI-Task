@@ -9,8 +9,8 @@ namespace Core
 {
     public class DataProvider : MonoBehaviour
     {
-        [SerializeField] private TextAsset dataSheet;
-        [SerializeField] private Toggle shuffleToggle;
+        [SerializeField] private TextAsset dataSheet;   // DataProvider will get collections from data sheet
+        [SerializeField] private Toggle shuffleToggle;  // Toggle UI to decide shuffle collection or not
 
         private bool UseShuffle => shuffleToggle.isOn;
         
@@ -19,18 +19,20 @@ namespace Core
         private void Start()
         {
             _containers.Clear();
+            
+            // Use 'Newtonsoft.Json.JsonConvert' for Deserialize Collection from JSON Array
+            // native JsonUtility is not support deserialize collection
             _containers.AddRange(JsonConvert.DeserializeObject<List<DataContainer>>(dataSheet.text));
 
             LogMessage();
         }
 
+        // Provide Data collections to caller
         public List<DataContainer> Provide()
         {
-            IEnumerable<DataContainer> toProvide = UseShuffle
-                ? _containers.OrderBy(_ => Guid.NewGuid())
+            return UseShuffle
+                ? _containers.OrderBy(_ => Guid.NewGuid()).ToList()
                 : _containers;
-
-            return toProvide.ToList();
         }
 
         #if UNITY_EDITOR
