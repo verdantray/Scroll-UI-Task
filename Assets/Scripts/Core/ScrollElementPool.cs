@@ -57,10 +57,16 @@ namespace Core
         private ObjectPool<T> InitializePool<T>(T elementRef) where T : ScrollElement<DataContainer>
         {
             return new ObjectPool<T>(
-                ()=> UnityEngine.Object.Instantiate(elementRef, parentOnRelease),
+                createFunc: CreatClosure,
                 actionOnGet: OnGetElement,
                 actionOnRelease: OnReleaseElement
             );
+
+            // using closure because of 'elementRef' is out of scope
+            T CreatClosure()
+            {
+                return UnityEngine.Object.Instantiate(elementRef, parentOnRelease);
+            }
         }
 
         private void OnGetElement<T>(T element) where T : ScrollElement<DataContainer>
