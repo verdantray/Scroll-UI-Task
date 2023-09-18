@@ -53,12 +53,11 @@ namespace UI
             
             ActiveInstances.Clear();
             spaceElement.sizeDelta = new Vector2(ViewportRect.x, Spacing * -1.0f);
+            Content.anchoredPosition = Vector2.zero;
         }
 
         private void OnMoveScroll(Vector2 _)
         {
-            Debug.Log(Content.anchoredPosition.y);
-            
             // get or release previous elements from first element of 'ActiveInstances'
             // depending on 'Content.anchoredPosition'
             AdjustElementFromForward();
@@ -70,13 +69,43 @@ namespace UI
 
         private void AdjustElementFromForward()
         {
-            // if (!ActiveInstances.Any()) return;
-            //
-            // float contentPosition = Content.anchoredPosition.y;
-            // float spaceSize = spaceElement.rect.height;
-            // float topElementPosition = ActiveInstances.First().RectTransform.anchoredPosition.y;
-            //
-            // while()
+            // get count of elements outside the viewport range
+            int outsideElementCount = ActiveInstances.Count(CheckElementOutsideFromTop);
+
+            // if count less than 1, get element
+            if (outsideElementCount < 1)
+            {
+                
+            }
+            // if count more than 1 including the first element, release remains
+            else if (outsideElementCount > 1)
+            {
+                // for (int i = outsideElementCount; i > 1; i--)
+                // {
+                //     ScrollElement<DataContainer> lastElement = ActiveInstances.Last();
+                //
+                //     AddSpaceSize(lastElement.RectTransform.rect.height * -1.0f);
+                //     ActiveInstances.Remove(lastElement);
+                //     
+                //     ReleaseElement(lastElement);
+                // }
+            }
+
+            return;
+            
+            bool CheckElementOutsideFromTop(ScrollElement<DataContainer> element)
+            {
+                float elementTop = GetElementTopPosition(element.RectTransform);
+                float contentTop = 0.0f;
+
+                return elementTop < contentTop;
+            }
+
+            float GetElementTopPosition(RectTransform rectTransform)
+            {
+                return rectTransform.anchoredPosition.y
+                       + (rectTransform.rect.yMin * -1.0f);
+            }
         }
 
         private void AdjustElementFromBackward()
@@ -84,28 +113,31 @@ namespace UI
             // get count of elements outside the viewport range
             int outsideElementCount = ActiveInstances.Count(CheckElementOutsideFromBottom);
 
-            // if less than 1, get element
+            // if count less than 1, get element
             if (outsideElementCount < 1)
             {
                 float contentHeight = Content.rect.height - Content.anchoredPosition.y;
-
+                
                 while (contentHeight < ViewportRect.height)
                 {
                     int orderToGet = ActiveInstances.Any()
                         ? ActiveInstances.Last().Order + 1
                         : 0;
 
+                    // Stop getting element, shown last one already
                     if (orderToGet >= FetchedList.Count) break;
 
                     ScrollElement<DataContainer> instance = GetElement(orderToGet);
-                    ActiveInstances.Add(instance);
-
                     contentHeight += instance.RectTransform.rect.height;
+                    
+                    ActiveInstances.Add(instance);
                 }
             }
-            // if more than 1 including the last element, release remains
+            // if count more than 1 including the last element, release remains
             else if (outsideElementCount > 1)
             {
+                // Debug.Log("More than 1");
+                
                 for (int i = outsideElementCount; i > 1; i--)
                 {
                     ScrollElement<DataContainer> lastElement = ActiveInstances.Last();
@@ -115,24 +147,27 @@ namespace UI
                 }
             }
 
-            float GetElementBottomPosition(RectTransform rectTransform)
-            {
-                return rectTransform.anchoredPosition.y
-                       + (rectTransform.sizeDelta.y * 0.5f);
-            }
-            
+            return;
+
             bool CheckElementOutsideFromBottom(ScrollElement<DataContainer> element)
             {
                 float elementBottom = GetElementBottomPosition(element.RectTransform);
-                float contentBottom = Content.anchoredPosition.y + ViewportRect.height;
+                float contentBottom = ViewportRect.height
+                                      + Content.anchoredPosition.y
+                                      - spaceElement.rect.height;
                 
                 return elementBottom > contentBottom;
             }
-        }
-
-        private bool CheckElementOutsideFromTop(ScrollElement<DataContainer> element)
-        {
-            return false;
+            
+            float GetElementBottomPosition(RectTransform rectTransform)
+            {
+                // value start from 0 to minus, because content pivot.
+                return Mathf.Abs(rectTransform.anchoredPosition.y
+                                 + (rectTransform.rect.yMax * -1.0f) 
+                                 + Content.anchoredPosition.y 
+                                 - spaceElement.rect.height
+                );
+            }
         }
 
         private void AddSpaceSize(float toAdd)
@@ -160,6 +195,7 @@ namespace UI
                     break;
             }
             
+            Debug.Log($"{order} / {container}");
             ret.SetData(new ScrollElementParam<DataContainer>(order, container));
 
             return ret;
