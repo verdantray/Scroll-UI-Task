@@ -130,11 +130,13 @@ namespace UI
                 // get element to top
                 if (outsideOfTopCount < 1)
                 {
+                    float viewPortTop = ViewportRect.yMin * -1.0f;
                     float contentHeight = spaceElement.rect.height - scrollPos;
                     
                     Debug.Log(contentHeight);
                     
-                    while (contentHeight < 0)
+                    // set baseline lower to prevent malfunction when scroll velocity is too high
+                    while (contentHeight - viewPortTop < viewPortTop)
                     {
                         int orderToGet = ActiveInstances.Any()
                             ? ActiveInstances.First().Order - 1
