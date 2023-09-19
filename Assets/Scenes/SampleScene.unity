@@ -351,12 +351,12 @@ MonoBehaviour:
   layoutGroup: {fileID: 1615678678}
   spaceElement: {fileID: 642706617}
   textElementAsset:
-    m_AssetGUID: 
+    m_AssetGUID: c4e3ea86b620d984fbab13f4ca397c67
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
   imageElementAsset:
-    m_AssetGUID: 
+    m_AssetGUID: d421e1da4b4b19b48afa6c75815bec59
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0

@@ -1,10 +1,15 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI
 {
+    public enum ScrollDirection
+    {
+        Forward,
+        Backward
+    }
+    
     /// <summary>
     /// A Component for make up Scroll-UI with data collection.
     /// Scroll-UI only operate one-axis.
@@ -21,25 +26,22 @@ namespace UI
         
         protected readonly List<T> FetchedList = new();
         protected readonly List<ScrollElement<T>> ActiveInstances = new();
-        protected float CurScrollPos = 0.0f;
+        protected float PrevScrollPos = 0.0f;
         
         public void FetchData(List<T> data)
         {
-            Initialize();
+            scrollRect.onValueChanged.RemoveListener(OnMoveScroll);
+            FetchedList.Clear();
             
             FetchedList.AddRange(data);
             scrollRect.onValueChanged.AddListener(OnMoveScroll);
             
-            OnMoveScroll(Vector2.zero);
+            Initialize();
         }
         
         protected virtual void Initialize()
         {
-            scrollRect.onValueChanged.RemoveListener(OnMoveScroll);
-            FetchedList.Clear();
-
             scrollRect.velocity = Vector2.zero;
-
             
             for (int i = ActiveInstances.Count; i > 0; i--)
             {
@@ -49,21 +51,40 @@ namespace UI
             ActiveInstances.Clear();
             Content.anchoredPosition = Vector2.zero;
             
-            CurScrollPos = 0.0f;
+            PrevScrollPos = 0.0f;
+            
+            OnMoveScroll(Vector2.zero);
         }
 
         private void OnMoveScroll(Vector2 _)
         {
             ScrollDirection direction = GetScrollDirection(Content.anchoredPosition.y);
-            float curScrollPos = GetScrollPosition();
+            float curScrollPos = GetClampedScrollPosition();
             
             AdjustElement(direction, curScrollPos);
-            CurScrollPos = curScrollPos;
+            PrevScrollPos = curScrollPos;
         }
 
+        /// <summary>
+        /// decide and return ScrollDirection after compare 'PrevScrollPos' and curContentPos
+        /// </summary>
+        /// <param name="curContentPos">Current AnchoredPosition of 'Content'</param>
+        /// <returns></returns>
         protected abstract ScrollDirection GetScrollDirection(float curContentPos);
-        protected abstract float GetScrollPosition();
+        
+        /// <summary>
+        /// Get clamped PosX or PosY from Content AnchoredPosition 
+        /// </summary>
+        /// <returns></returns>
+        protected abstract float GetClampedScrollPosition();
+        
+        /// <summary>
+        /// get or release UI-Elements of ScrollViewer, depending on direction and scrollPosition
+        /// </summary>
+        /// <param name="direction"></param>
+        /// <param name="scrollPos"></param>
         protected abstract void AdjustElement(ScrollDirection direction, float scrollPos);
+        
         protected abstract ScrollElement<T> GetElement(int order);
         protected abstract void ReleaseElement(ScrollElement<T> element);
     }

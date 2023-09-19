@@ -1,25 +1,17 @@
-using System.Collections.Generic;
+using System;
+using System.Collections;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.UI;
 using Core;
 using UnityEngine.AddressableAssets;
 
 namespace UI
 {
-    public enum ScrollDirection
-    {
-        Forward,
-        Backward
-    }
-    
-    
     public class TestScrollViewer : OneAxisScrollViewer<DataContainer>
     {
         [SerializeField] private RectTransform spaceElement;
-        [SerializeField] private AssetReferenceT<TextElement> textElementAsset;
-        [SerializeField] private AssetReferenceT<ImageElement> imageElementAsset;
+        [SerializeField] private AssetReference textElementAsset;
+        [SerializeField] private AssetReference imageElementAsset;
         [SerializeField] private Transform releaseElementStock;
         
         private ScrollElementPool _scrollElementPool = null;
@@ -30,24 +22,44 @@ namespace UI
             spaceElement.sizeDelta = new Vector2(ViewportRect.width, curSize + toAdd);
         }
 
-        private async void InitializePoolAsync()
+        private IEnumerator InitializePoolRoutine(Action onComplete)
         {
-            if (_scrollElementPool != null) return;
+            if (_scrollElementPool != null)
+            {
+                onComplete?.Invoke();
+                yield break;
+            }
+
+            var textElementHandle = textElementAsset.LoadAssetAsync<GameObject>();
+            var imageElementHandle = imageElementAsset.LoadAssetAsync<GameObject>();
+
+            yield return new WaitUntil(() => textElementHandle.IsDone && imageElementHandle.IsDone);
             
-            TextElement textElementRef = await textElementAsset.LoadAssetAsync<TextElement>().Task;
-            ImageElement imageElementRef = await imageElementAsset.LoadAssetAsync<ImageElement>().Task;
+            TextElement textElementRef = textElementHandle.Result.GetComponent<TextElement>();
+            ImageElement imageElementRef = imageElementHandle.Result.GetComponent<ImageElement>();
             
             _scrollElementPool = new ScrollElementPool(textElementRef, imageElementRef, Content, releaseElementStock);
+            onComplete?.Invoke();
+        }
+
+        private void OnDestroy()
+        {
+            _scrollElementPool?.Dispose();
+            _scrollElementPool = null;
+            
+            textElementAsset.ReleaseAsset();
+            imageElementAsset.ReleaseAsset();
         }
 
         #region Inherits of OneAxisScrollViewer
 
         protected override void Initialize()
         {
-            InitializePoolAsync();
-            spaceElement.sizeDelta = new Vector2(ViewportRect.x, Spacing * -1.0f);
-            
-            base.Initialize();
+            StartCoroutine(InitializePoolRoutine(() =>
+            {
+                spaceElement.sizeDelta = new Vector2(ViewportRect.x, Spacing * -1.0f);
+                base.Initialize();
+            }));
         }
         
         protected override void AdjustElement(ScrollDirection direction, float scrollPos)
@@ -107,7 +119,7 @@ namespace UI
                     float viewPortTop = ViewportRect.yMin * -1.0f;
                     float contentHeight = spaceElement.rect.height - scrollPos;
                     
-                    Debug.Log(contentHeight);
+                    // Debug.Log(contentHeight);
                     
                     // set baseline lower to prevent malfunction when scroll velocity is too high
                     while (contentHeight - viewPortTop < viewPortTop)
@@ -119,6 +131,8 @@ namespace UI
                         if (orderToGet < 0) break;
                     
                         ScrollElement<DataContainer> instance = GetElement(orderToGet);
+                        
+                        // 'Content's first child is always 'spaceElement'
                         instance.transform.SetSiblingIndex(1);
                         
                         float height = instance.RectTransform.rect.height + Spacing;
@@ -161,12 +175,12 @@ namespace UI
 
         protected override ScrollDirection GetScrollDirection(float curContentPos)
         {
-            return CurScrollPos <= curContentPos
+            return PrevScrollPos <= curContentPos
                 ? ScrollDirection.Forward
                 : ScrollDirection.Backward;
         }
 
-        protected override float GetScrollPosition()
+        protected override float GetClampedScrollPosition()
         {
             // content move range 0 ~ float.Max
             return Mathf.Clamp(Content.anchoredPosition.y, 0.0f, float.MaxValue);
