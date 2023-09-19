@@ -62,6 +62,7 @@ namespace UI
             }));
         }
         
+        // Assumes vertical scroll...
         protected override void AdjustElement(ScrollDirection direction, float scrollPos)
         {
             bool isForward = direction == ScrollDirection.Forward;
@@ -213,6 +214,7 @@ namespace UI
 
         protected override void ReleaseElement(ScrollElement<DataContainer> element)
         {
+            // use type matching
             switch (element)
             {
                 case TextElement textElement :
@@ -223,7 +225,7 @@ namespace UI
                     break;
                 
                 case null :
-                    Debug.Log("Try remove null Element....");
+                    Debug.Log("Failed to release element.. element is null");
                     break;
             }
         }

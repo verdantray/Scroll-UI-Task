@@ -24,8 +24,14 @@ namespace UI
         protected RectTransform Content => scrollRect.content;
         protected float Spacing => layoutGroup.spacing;
         
+        // fetched data collection using 'FetchData'
         protected readonly List<T> FetchedList = new();
+        
+        // active instance list of Scroll-UI-Elements
         protected readonly List<ScrollElement<T>> ActiveInstances = new();
+        
+        // cached previous scroll position
+        // look 'OnMoveScroll' and 'GetClampedScrollPosition' together
         protected float PrevScrollPos = 0.0f;
         
         public void FetchData(List<T> data)
