@@ -85,6 +85,8 @@ MonoBehaviour:
     m_LabelNames:
     - default
     - dataSheet
+    - ScrollElement/ImageElement
+    - ScrollElement/TextElement
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: ed0cf0765bbe3ab46a21908b3dd87562, type: 2}

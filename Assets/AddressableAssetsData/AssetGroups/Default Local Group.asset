@@ -22,6 +22,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - dataSheet
+  - m_GUID: c4e3ea86b620d984fbab13f4ca397c67
+    m_Address: Assets/Prefabs/UI/Item_Text.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - ScrollElement/TextElement
+  - m_GUID: d421e1da4b4b19b48afa6c75815bec59
+    m_Address: Assets/Prefabs/UI/Item_Image.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - ScrollElement/ImageElement
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: c2fa6a664c0b4494cbbd19dd873d5d0a, type: 2}
   m_SchemaSet:
