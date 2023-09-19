@@ -350,8 +350,16 @@ MonoBehaviour:
   scrollRect: {fileID: 203122757}
   layoutGroup: {fileID: 1615678678}
   spaceElement: {fileID: 642706617}
-  textElementRef: {fileID: 8213829228562773980, guid: c4e3ea86b620d984fbab13f4ca397c67, type: 3}
-  imageElementRef: {fileID: 9139927983676995114, guid: d421e1da4b4b19b48afa6c75815bec59, type: 3}
+  textElementAsset:
+    m_AssetGUID: 
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  imageElementAsset:
+    m_AssetGUID: 
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
   releaseElementStock: {fileID: 1988803904}
 --- !u!1 &286210628
 GameObject:

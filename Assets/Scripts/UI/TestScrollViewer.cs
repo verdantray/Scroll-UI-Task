@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using Core;
+using UnityEngine.AddressableAssets;
 
 namespace UI
 {
@@ -12,71 +14,43 @@ namespace UI
         Backward
     }
     
-    /// <summary>
-    /// A Component for make up Scroll-UI with data collection.
-    /// </summary>
-    /// <typeparam name="T">Type of element in data collection</typeparam>
-    public class ScrollViewer : MonoBehaviour
+    
+    public class TestScrollViewer : OneAxisScrollViewer<DataContainer>
     {
-        [SerializeField] private ScrollRect scrollRect;
-        [SerializeField] private HorizontalOrVerticalLayoutGroup layoutGroup;
         [SerializeField] private RectTransform spaceElement;
-
-        [SerializeField] private TextElement textElementRef;
-        [SerializeField] private ImageElement imageElementRef;
+        [SerializeField] private AssetReferenceT<TextElement> textElementAsset;
+        [SerializeField] private AssetReferenceT<ImageElement> imageElementAsset;
         [SerializeField] private Transform releaseElementStock;
-
-        protected Rect ViewportRect => scrollRect.viewport.rect;
-        protected RectTransform Content => scrollRect.content;
-        protected float Spacing => layoutGroup.spacing;
         
-        protected readonly List<DataContainer> FetchedList = new();
-        protected readonly List<ScrollElement<DataContainer>> ActiveInstances = new();
-
         private ScrollElementPool _scrollElementPool = null;
-        private float _curScrollPos = 0.0f;
-
-        public void FetchData(List<DataContainer> data)
+        
+        private void AddSpaceSize(float toAdd)
         {
-            Initialize();
-            
-            FetchedList.AddRange(data);
-            scrollRect.onValueChanged.AddListener(OnMoveScroll);
-            
-            OnMoveScroll(Vector2.zero);
+            float curSize = spaceElement.rect.height;
+            spaceElement.sizeDelta = new Vector2(ViewportRect.width, curSize + toAdd);
         }
 
-        private void Initialize()
+        private async void InitializePoolAsync()
         {
-            scrollRect.onValueChanged.RemoveListener(OnMoveScroll);
-            FetchedList.Clear();
-
-            scrollRect.velocity = Vector2.zero;
-
-            _scrollElementPool ??= new ScrollElementPool(textElementRef, imageElementRef, Content, releaseElementStock);
+            if (_scrollElementPool != null) return;
             
-            for (int i = ActiveInstances.Count; i > 0; i--)
-            {
-                ReleaseElement(ActiveInstances[i - 1]);
-            }
+            TextElement textElementRef = await textElementAsset.LoadAssetAsync<TextElement>().Task;
+            ImageElement imageElementRef = await imageElementAsset.LoadAssetAsync<ImageElement>().Task;
             
-            ActiveInstances.Clear();
+            _scrollElementPool = new ScrollElementPool(textElementRef, imageElementRef, Content, releaseElementStock);
+        }
+
+        #region Inherits of OneAxisScrollViewer
+
+        protected override void Initialize()
+        {
+            InitializePoolAsync();
             spaceElement.sizeDelta = new Vector2(ViewportRect.x, Spacing * -1.0f);
             
-            Content.anchoredPosition = Vector2.zero;
-            _curScrollPos = 0.0f;
+            base.Initialize();
         }
-
-        private void OnMoveScroll(Vector2 _)
-        {
-            ScrollDirection direction = GetScrollDirection(Content.anchoredPosition.y);
-            float curScrollPos = GetScrollPosition();
-            
-            AdjustElement(direction, curScrollPos);
-            _curScrollPos = curScrollPos;
-        }
-
-        private void AdjustElement(ScrollDirection direction, float scrollPos)
+        
+        protected override void AdjustElement(ScrollDirection direction, float scrollPos)
         {
             bool isForward = direction == ScrollDirection.Forward;
 
@@ -185,26 +159,20 @@ namespace UI
             }
         }
 
-        private ScrollDirection GetScrollDirection(float curContentPos)
+        protected override ScrollDirection GetScrollDirection(float curContentPos)
         {
-            return _curScrollPos <= curContentPos
+            return CurScrollPos <= curContentPos
                 ? ScrollDirection.Forward
                 : ScrollDirection.Backward;
         }
 
-        private float GetScrollPosition()
+        protected override float GetScrollPosition()
         {
             // content move range 0 ~ float.Max
             return Mathf.Clamp(Content.anchoredPosition.y, 0.0f, float.MaxValue);
         }
 
-        private void AddSpaceSize(float toAdd)
-        {
-            float curSize = spaceElement.rect.height;
-            spaceElement.sizeDelta = new Vector2(ViewportRect.width, curSize + toAdd);
-        }
-
-        private ScrollElement<DataContainer> GetElement(int order)
+        protected override ScrollElement<DataContainer> GetElement(int order)
         {
             DataContainer container = FetchedList[order];
             ScrollElement<DataContainer> ret = null;
@@ -229,7 +197,7 @@ namespace UI
             return ret;
         }
 
-        private void ReleaseElement(ScrollElement<DataContainer> element)
+        protected override void ReleaseElement(ScrollElement<DataContainer> element)
         {
             switch (element)
             {
@@ -245,5 +213,7 @@ namespace UI
                     break;
             }
         }
+
+        #endregion
     }
 }

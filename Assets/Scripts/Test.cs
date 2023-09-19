@@ -5,7 +5,7 @@ using UnityEngine;
 public class Test : MonoBehaviour
 {
     [SerializeField] private DataProvider dataProvider;
-    [SerializeField] private ScrollViewer scrollViewer;
+    [SerializeField] private TestScrollViewer scrollViewer;
 
     private void Start()
     {
